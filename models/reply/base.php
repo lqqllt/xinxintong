@@ -44,13 +44,22 @@ abstract class Reply {
 		if (!is_array($matters)) {
 			$matters = array($matters);
 		}
-
+                
 		$r = '<xml>';
 		$r .= $this->header();
 		$r .= '<MsgType><![CDATA[news]]></MsgType>';
 		$r .= '<ArticleCount>' . count($matters) . '</ArticleCount>';
 		$r .= '<Articles>';
 		$r .= $this->article_reply($matters);
+                $num=$_SESSION['num'];
+                if($num>5){
+                    $r.="<item>";
+                    $r.="<Title><![CDATA[查看更多]]></Title>";
+                    $r.="<Description><![CDATA[查看更多]]></Description>";
+                    $r.="<PicUrl><![CDATA[]]></PicUrl>";
+                    $r.="<Url><![CDATA[http://".$_SERVER['HTTP_HOST']."/rest/site/sns/yx/search?site=".$_SESSION['site']."&keyword=".$_SESSION['keyword']."]]></Url>";
+                    $r.="</item>";
+                }
 		$r .= '</Articles>';
 		$r .= '</xml>';
 		if ($this->call['src'] === 'qy') {

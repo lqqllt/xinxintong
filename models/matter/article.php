@@ -283,6 +283,26 @@ class article_model extends article_base {
 
 		return $articles;
 	}
+        /*
+         * 返回全文检索（统计）数目
+         */
+        public function fullsearch_num($site, $keyword) {
+		$s = "count(*) as c";
+		$f = 'xxt_article';
+		$w = "mpid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";
+		$w .= " and (title like '%$keyword%'";
+		$w .= "or summary like '%$keyword%'";
+		$w .= "or body like '%$keyword%')";
+		$q = array($s, $f, $w);
+
+		$q2['o'] = 'create_at desc';		
+
+		$r = parent::query_objs_ss($q, $q2);
+                $one=(array)$r[0];
+                $num=$one['c'];
+                
+		return $num;
+	}
 	/**
 	 * 审核记录
 	 *

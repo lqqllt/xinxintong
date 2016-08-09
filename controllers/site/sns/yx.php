@@ -300,6 +300,20 @@ class yx extends \member_base {
 			$this->universal_call($call);
 		}
 	}
+        /*
+         * 返回所有的搜索结果
+         */
+        public function search_action($site,$keyword='',$page=1,$limit=5) {
+            $matters = \TMS_APP::model('matter\article')->fullsearch_its($site, $keyword, $page, $limit);
+            return new \ResponseData($matters);
+        }
+        /*
+         * 返回搜索结果的总数
+         */
+        public function sum_action($site,$keyword) {
+            $sum = \TMS_APP::model('matter\article')->fullsearch_num($site, $keyword);  
+            return new \ResponseData($sum);
+        }
 	/**
 	 * menu call
 	 */

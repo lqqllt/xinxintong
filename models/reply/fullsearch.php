@@ -14,6 +14,10 @@ class fullsearch_model extends MultiArticleReply {
     {
         parent::__construct($call, null);
         $this->keyword = $keyword;
+        $num=\TMS_APP::model('matter\article')->fullsearch_num($this->call['mpid'], $this->keyword);
+        $_SESSION['num']=$num;
+        $_SESSION['site']=$this->call['mpid'];
+        $_SESSION['keyword']=  $this->keyword;
     }
 
     protected function loadMatters() 
