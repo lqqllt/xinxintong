@@ -283,16 +283,73 @@ class article_model extends article_base {
 
 		return $articles;
 	}
+        /**
+	 * 全文分类检索单图文，将符合条件的结果组成多图文
+	 */
+	public function typesearch_its($mpid, $keyword, $page = 1, $limit = 5,$type='all') {
+		$s = "id,mpid,title,author,summary,pic,body,url,'article' type";
+		$f = 'xxt_article';
+		$w = "mpid='$mpid' and state=1 and approved='Y' and can_fullsearch='Y'";
+                
+                switch ($type) {
+                    case 'plan': //方案
+                        $w .= " and (title REGEXP '方案.*$keyword|$keyword.*方案'";
+                        $w .= "or summary REGEXP '方案.*$keyword|$keyword.*方案'";
+                        $w .= "or body REGEXP '方案.*$keyword|$keyword.*方案')";
+                        break;
+                    
+                    case 'case': //案例
+                        $w .= " and (title REGEXP '案例.*$keyword|$keyword.*案例'";
+                        $w .= "or summary REGEXP '案例.*$keyword|$keyword.*案例'";
+                        $w .= "or body REGEXP '案例.*$keyword|$keyword.*案例')";
+                        break;
+
+                    default: //全部
+                        $w .= " and (title like '%$keyword%'";
+                        $w .= "or summary like '%$keyword%'";
+                        $w .= "or body like '%$keyword%')";
+                        break;
+                }
+		
+                
+		$q = array($s, $f, $w);
+
+		$q2['o'] = 'create_at desc';
+		$q2['r']['o'] = ($page - 1) * $limit;
+		$q2['r']['l'] = $limit;
+
+		$articles = parent::query_objs_ss($q, $q2);
+
+		return $articles;
+	}
         /*
          * 返回全文检索（统计）数目
          */
-        public function fullsearch_num($site, $keyword) {
+        public function fullsearch_num($site, $keyword,$type='all') {
 		$s = "count(*) as c";
 		$f = 'xxt_article';
 		$w = "mpid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";
-		$w .= " and (title like '%$keyword%'";
-		$w .= "or summary like '%$keyword%'";
-		$w .= "or body like '%$keyword%')";
+                
+		switch ($type) {
+                    case 'plan': //方案
+                        $w .= " and (title REGEXP '方案.*$keyword|$keyword.*方案'";
+                        $w .= "or summary REGEXP '方案.*$keyword|$keyword.*方案'";
+                        $w .= "or body REGEXP '方案.*$keyword|$keyword.*方案')";
+                        break;
+                    
+                    case 'case': //案例
+                        $w .= " and (title REGEXP '案例.*$keyword|$keyword.*案例'";
+                        $w .= "or summary REGEXP '案例.*$keyword|$keyword.*案例'";
+                        $w .= "or body REGEXP '案例.*$keyword|$keyword.*案例')";
+                        break;
+
+                    default: //全部
+                        $w .= " and (title like '%$keyword%'";
+                        $w .= "or summary like '%$keyword%'";
+                        $w .= "or body like '%$keyword%')";
+                        break;
+                }
+                
 		$q = array($s, $f, $w);
 
 		$q2['o'] = 'create_at desc';		
