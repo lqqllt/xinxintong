@@ -44,13 +44,13 @@ abstract class Reply {
 		if (!is_array($matters)) {
 			$matters = array($matters);
 		}
-                
+
 		$r = '<xml>';
 		$r .= $this->header();
 		$r .= '<MsgType><![CDATA[news]]></MsgType>';
 		$r .= '<ArticleCount>' . count($matters) . '</ArticleCount>';
 		$r .= '<Articles>';
-		$r .= $this->article_reply($matters);           
+		$r .= $this->article_reply($matters);
 		$r .= '</Articles>';
 		$r .= '</xml>';
 		if ($this->call['src'] === 'qy') {
