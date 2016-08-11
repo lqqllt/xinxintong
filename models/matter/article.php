@@ -284,7 +284,7 @@ class article_model extends article_base {
 		return $articles;
 	}
         /**
-	 * 全文分类检索单图文，将符合条件的结果组成多图文
+	 * 带分页全文分类检索单图文，将符合条件的结果组成多图文
 	 */
 	public function typesearch_its($mpid, $keyword, $page = 1, $limit = 5,$type='all') {
 		$s = "id,mpid,title,author,summary,pic,body,url,'article' type";
@@ -317,6 +317,25 @@ class article_model extends article_base {
 		$q2['o'] = 'create_at desc';
 		$q2['r']['o'] = ($page - 1) * $limit;
 		$q2['r']['l'] = $limit;
+
+		$articles = parent::query_objs_ss($q, $q2);
+
+		return $articles;
+	}
+        /*
+         * 返回全部检索内容
+         */
+        public function search_all($mpid, $keyword) {
+		$s = "id,mpid,title,author,summary,pic,body,url,'article' type";
+		$f = 'xxt_article';
+		$w = "mpid='$mpid' and state=1 and approved='Y' and can_fullsearch='Y'";             
+                $w .= " and (title like '%$keyword%'";
+                $w .= "or summary like '%$keyword%'";
+                $w .= "or body like '%$keyword%')";             
+                
+		$q = array($s, $f, $w);
+
+		$q2['o'] = 'create_at desc';	
 
 		$articles = parent::query_objs_ss($q, $q2);
 

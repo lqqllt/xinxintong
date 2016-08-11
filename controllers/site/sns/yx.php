@@ -301,10 +301,17 @@ class yx extends \member_base {
 		}
 	}
          /*
+         * 返回带分页的搜索结果
+         */
+         public function page_action($site,$keyword='',$page=1,$limit=5,$type='all') {
+            $matters = \TMS_APP::model('matter\article')->typesearch_its($site, $keyword, $page, $limit,$type);
+            return new \ResponseData($matters);
+        }
+        /*
          * 返回所有的搜索结果
          */
-         public function detail_action($site,$keyword='',$page=1,$limit=5,$type='all') {       
-            $matters = \TMS_APP::model('matter\article')->typesearch_its($site, $keyword, $page, $limit,$type);
+         public function detail_action($site,$keyword='') {
+            $matters = \TMS_APP::model('matter\article')->search_all($site, $keyword);
             return new \ResponseData($matters);
         }
         /*
