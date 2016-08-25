@@ -25,7 +25,18 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 
             angular.isString(names) && (names = [names]);
             angular.forEach(names, function(name) {
-                p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
+                if (name === 'html') {
+                    if ($scope.ep === page) {
+                        if (page.type === 'I') {
+                            page.purifyInput(tinymce.activeEditor.getContent(), true);
+                        } else {
+                            page.html = tinymce.activeEditor.getContent();
+                        }
+                    }
+                    p.html = encodeURIComponent(page.html);
+                } else {
+                    p[name] = page[name];
+                }
             });
             url = '/rest/pl/fe/matter/signin/page/update';
             url += '?site=' + $scope.siteId;
@@ -197,7 +208,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             $scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
         };
         $scope.wrapEditorHtml = function() {
-            var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=22';
+            var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=23';
             return url;
         };
         /*创建了新的schema*/
@@ -781,7 +792,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                         if ($scope.activeWrap.schema.schema_id === memberSchema.id) {
                             for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
                                 schema = memberSchema._schemas[j];
-                                if ($scope.schema.id === schema.id) {
+                                if ($scope.activeWrap.schema === schema.id) {
                                     break;
                                 }
                             }

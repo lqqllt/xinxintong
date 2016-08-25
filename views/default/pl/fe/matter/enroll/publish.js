@@ -1,18 +1,64 @@
 define(['frame'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', 'templateShop', function($scope, http2, templateShop) {
-		var previewURL = '/rest/site/fe/matter/enroll/preview?site=' + $scope.siteId + '&app=' + $scope.id + '&start=Y';
-		$scope.params = {
-			openAt: 'ontime'
+	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', 'templateShop', function($scope, http2, mediagallery, templateShop) {
+		(function() {
+			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+		})();
+		$scope.$watch('app', function(app) {
+			if (!app) return;
+			var entry;
+			entry = {
+				url: $scope.url,
+				qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent($scope.url),
+			};
+			$scope.entry = entry;
+		});
+		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
+		$scope.setPic = function() {
+			var options = {
+				callback: function(url) {
+					$scope.app.pic = url + '?_=' + (new Date()) * 1;
+					$scope.update('pic');
+				}
+			};
+			mediagallery.open($scope.siteId, options);
 		};
+		$scope.removePic = function() {
+			$scope.app.pic = '';
+			$scope.update('pic');
+		};
+		$scope.downloadQrcode = function(url) {
+			$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+		};
+		$scope.summaryOfRecords().then(function(data) {
+			$scope.summary = data;
+		});
 		$scope.shareAsTemplate = function() {
 			templateShop.share($scope.siteId, $scope.app);
 		};
-		$scope.$watch('params', function(params) {
-			if (params) {
-				$scope.previewURL = previewURL + '&openAt=' + params.openAt;
-			}
-		}, true);
+	}]);
+	/**
+	 * 微信二维码
+	 */
+	ngApp.provider.controller('ctrlWxQrcode', ['$scope', 'http2', function($scope, http2) {
+		$scope.create = function() {
+			var url;
+
+			url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.siteId;
+			url += '&matter_type=enroll&matter_id=' + $scope.id;
+			url += '&expire=864000';
+
+			http2.get(url, function(rsp) {
+				$scope.qrcode = rsp.data;
+			});
+		};
+		$scope.download = function() {
+			$('<a href="' + $scope.qrcode.pic + '" download="微信登记二维码.jpeg"></a>')[0].click();
+		};
+		http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+			var qrcodes = rsp.data;
+			$scope.qrcode = qrcodes.length ? qrcodes[0] : false;
+		});
 	}]);
 	/**
 	 * app setting controller
@@ -74,45 +120,16 @@ define(['frame'], function(ngApp) {
 			});
 		}
 	}]);
-	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
-		(function() {
-			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-		})();
-		$scope.$watch('app', function(app) {
-			if (!app) return;
-			var entry;
-			entry = {
-				url: $scope.url,
-				qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent($scope.url),
-			};
-			$scope.entry = entry;
-		});
-		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
-		$scope.stop = function() {
-			$scope.app.state = 1;
-			$scope.update('state').then(function() {
-				location.href = '/rest/pl/fe/matter/enroll/preview?site=' + $scope.siteId + '&id=' + $scope.id;
-			});
+	ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', function($scope, http2) {
+		var previewURL = '/rest/site/fe/matter/enroll/preview?site=' + $scope.siteId + '&app=' + $scope.id + '&start=Y';
+		$scope.params = {
+			openAt: 'ontime'
 		};
-		$scope.setPic = function() {
-			var options = {
-				callback: function(url) {
-					$scope.app.pic = url + '?_=' + (new Date()) * 1;
-					$scope.update('pic');
-				}
-			};
-			mediagallery.open($scope.siteId, options);
-		};
-		$scope.removePic = function() {
-			$scope.app.pic = '';
-			$scope.update('pic');
-		};
-		$scope.downloadQrcode = function(url) {
-			$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
-		};
-		$scope.summaryOfRecords().then(function(data) {
-			$scope.summary = data;
-		});
+		$scope.$watch('params', function(params) {
+			if (params) {
+				$scope.previewURL = previewURL + '&openAt=' + params.openAt;
+			}
+		}, true);
 	}]);
 	ngApp.provider.controller('ctrlRound', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.roundState = ['新建', '启用', '停止'];

@@ -20,7 +20,6 @@ define(['require'], function() {
 			controller: $controllerProvider.register
 		};
 		$routeProvider
-			.when('/rest/pl/fe/matter/group/player', new RouteParam('player'))
 			.otherwise(new RouteParam('setting'));
 
 		$locationProvider.html5Mode(true);
@@ -124,8 +123,9 @@ define(['require'], function() {
 		$scope.ok = function() {
 			var c, p, col;
 			p = {
-				tags: $scope.player.aTags.join(','),
 				data: {},
+				comment: $scope.player.comment,
+				tags: $scope.player.aTags.join(','),
 				round_id: $scope.player.round_id
 			};
 			$scope.player.tags = p.tags;
