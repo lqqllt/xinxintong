@@ -300,36 +300,36 @@ class yx extends \member_base {
 			$this->universal_call($call);
 		}
 	}
-         /*
-         * 返回带分页的搜索结果
-         */
-         public function page_action($site,$keyword='',$page=1,$limit=5,$type='all') {
-            $matters = \TMS_APP::model('matter\article')->typesearch_its($site, $keyword, $page, $limit,$type);
-            return new \ResponseData($matters);
-        }
-        /*
-         * 返回所有的搜索结果
-         */
-         public function detail_action($site,$keyword='') {
-            $matters = \TMS_APP::model('matter\article')->search_all($site, $keyword);
-            return new \ResponseData($matters);
-        }
-        /*
-         * 搜索页面
-         */
-        public function search_action($site,$keyword) {
-            \TPL::assign('site', $site);
-            \TPL::assign('keyword', $keyword);
-            \TPL::output("/site/sns/yx/search");
-            die();
-        }
-        /*
-         * 返回搜索结果的总数
-         */
-        public function sum_action($site,$keyword,$type='all') {
-            $sum = \TMS_APP::model('matter\article')->fullsearch_num($site, $keyword,$type);  
-            return new \ResponseData($sum);
-        }
+	 /*
+	 * 返回带分页的搜索结果
+	 */
+	 public function page_action($site,$keyword='',$page=1,$limit=5,$type='all') {
+		$matters = \TMS_APP::model('matter\article')->typesearch_its($site, $keyword, $page, $limit,$type);
+		return new \ResponseData($matters);
+	}
+	/*
+	 * 返回所有的搜索结果
+	 */
+	 public function detail_action($site,$keyword='') {
+		$matters = \TMS_APP::model('matter\article')->search_all($site, $keyword);
+		return new \ResponseData($matters);
+	}
+	/*
+	 * 搜索页面
+	 */
+	public function search_action($site,$keyword) {
+		\TPL::assign('site', $site);
+		\TPL::assign('keyword', $keyword);
+		\TPL::output("/site/sns/yx/search");
+		die();
+	}
+	/*
+	 * 返回搜索结果的总数
+	 */
+	public function sum_action($site,$keyword,$type='all') {
+		$sum = \TMS_APP::model('matter\article')->fullsearch_num($site, $keyword,$type);  
+		return new \ResponseData($sum);
+	}
 	/**
 	 * menu call
 	 */
