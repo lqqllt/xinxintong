@@ -303,8 +303,8 @@ class yx extends \member_base {
 	 /*
 	 * 返回带分页的搜索结果
 	 */
-	 public function page_action($site,$keyword='',$page=1,$limit=5,$type='all') {
-		$matters = \TMS_APP::model('matter\article')->typesearch_its($site, $keyword, $page, $limit,$type);
+	 public function page_action($site,$keyword='',$tagid=1) {
+		$matters = \TMS_APP::model('matter\article')->typesearch_its($site, $keyword, $tagid);	
 		return new \ResponseData($matters);
 	}
 	/*
@@ -324,10 +324,17 @@ class yx extends \member_base {
 		die();
 	}
 	/*
+	 * 返回所有的内容标签
+	 */
+	public function tags_action($site) {
+		$r=  $this->model("tag")->get_tags($site);
+		return new \ResponseData($r);
+	}
+	/*
 	 * 返回搜索结果的总数
 	 */
-	public function sum_action($site,$keyword,$type='all') {
-		$sum = \TMS_APP::model('matter\article')->fullsearch_num($site, $keyword,$type);  
+	public function sum_action($site,$keyword) {
+		$sum = \TMS_APP::model('matter\article')->fullsearch_num($site, $keyword);  
 		return new \ResponseData($sum);
 	}
 	/**

@@ -286,52 +286,26 @@ class article_model extends article_base {
         /**
 	 * 带分页全文分类检索单图文，将符合条件的结果组成多图文
 	 */
-	public function typesearch_its($mpid, $keyword, $page = 1, $limit = 5,$type='all') {
-		$s = "id,mpid,title,author,summary,pic,body,url,'article' type";
-		$f = 'xxt_article';
-		$w = "mpid='$mpid' and state=1 and approved='Y' and can_fullsearch='Y'";
-                
-                switch ($type) {
-                    case 'plan': //方案
-                        $w .= " and (title REGEXP '方案.*$keyword|$keyword.*方案'";
-                        $w .= "or summary REGEXP '方案.*$keyword|$keyword.*方案'";
-                        $w .= "or body REGEXP '方案.*$keyword|$keyword.*方案')";
-                        break;
-                    
-                    case 'case': //案例
-                        $w .= " and (title REGEXP '案例.*$keyword|$keyword.*案例'";
-                        $w .= "or summary REGEXP '案例.*$keyword|$keyword.*案例'";
-                        $w .= "or body REGEXP '案例.*$keyword|$keyword.*案例')";
-                        break;
-
-                    default: //全部
-                        $w .= " and (title like '%$keyword%'";
-                        $w .= "or summary like '%$keyword%'";
-                        $w .= "or body like '%$keyword%')";
-                        break;
-                }
+	public function typesearch_its($site, $keyword,$tagid=1) {
+		$sql = "select a.id,a.mpid,a.title,a.author,a.summary,a.pic,a.body,a.url,a.state ";
+		$sql.= 'from xxt_tag g JOIN xxt_article_tag t ON g.id = t.tag_id JOIN xxt_article a ON t.res_id = a.id ';
+		$sql.= " where g.id=$tagid and a.siteid='$site' and a.state=1 and a.approved='Y' and a.can_fullsearch='Y' ";
+		$sql.=" and (a.title like '%$keyword%' or a.summary like '%$keyword%' or a.body like '%$keyword%')";
 		
-                
-		$q = array($s, $f, $w);
-
-		$q2['o'] = 'create_at desc';
-		$q2['r']['o'] = ($page - 1) * $limit;
-		$q2['r']['l'] = $limit;
-
-		$articles = parent::query_objs_ss($q, $q2);
-
+		$articles = parent::query_objs($sql);
+		
 		return $articles;
 	}
         /*
          * 返回全部检索内容
          */
-        public function search_all($mpid, $keyword) {
+     public function search_all($mpid, $keyword) {
 		$s = "id,mpid,title,author,summary,pic,body,url,'article' type";
 		$f = 'xxt_article';
 		$w = "mpid='$mpid' and state=1 and approved='Y' and can_fullsearch='Y'";             
-                $w .= " and (title like '%$keyword%'";
-                $w .= "or summary like '%$keyword%'";
-                $w .= "or body like '%$keyword%')";             
+		$w .= " and (title like '%$keyword%'";
+		$w .= "or summary like '%$keyword%'";
+		$w .= "or body like '%$keyword%')";             
                 
 		$q = array($s, $f, $w);
 
@@ -344,38 +318,21 @@ class article_model extends article_base {
         /*
          * 返回全文检索（统计）数目
          */
-        public function fullsearch_num($site, $keyword,$type='all') {
+    public function fullsearch_num($site, $keyword) {
 		$s = "count(*) as c";
 		$f = 'xxt_article';
-		$w = "mpid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";
-                
-		switch ($type) {
-                    case 'plan': //方案
-                        $w .= " and (title REGEXP '方案.*$keyword|$keyword.*方案'";
-                        $w .= "or summary REGEXP '方案.*$keyword|$keyword.*方案'";
-                        $w .= "or body REGEXP '方案.*$keyword|$keyword.*方案')";
-                        break;
-                    
-                    case 'case': //案例
-                        $w .= " and (title REGEXP '案例.*$keyword|$keyword.*案例'";
-                        $w .= "or summary REGEXP '案例.*$keyword|$keyword.*案例'";
-                        $w .= "or body REGEXP '案例.*$keyword|$keyword.*案例')";
-                        break;
-
-                    default: //全部
-                        $w .= " and (title like '%$keyword%'";
-                        $w .= "or summary like '%$keyword%'";
-                        $w .= "or body like '%$keyword%')";
-                        break;
-                }
-                
+		$w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";                		
+		$w .= " and (title like '%$keyword%'";
+		$w .= "or summary like '%$keyword%'";
+		$w .= "or body like '%$keyword%')";
+                                     
 		$q = array($s, $f, $w);
 
 		$q2['o'] = 'create_at desc';		
 
 		$r = parent::query_objs_ss($q, $q2);
-                $one=(array)$r[0];
-                $num=$one['c'];
+		$one=(array)$r[0];
+		$num=$one['c'];
                 
 		return $num;
 	}
