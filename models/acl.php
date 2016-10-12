@@ -502,7 +502,8 @@ class acl_model extends TMS_MODEL {
 			"$whichAcl",
 		);
 		$acls = $this->query_objs_ss($q);
-		if (true === $this->_checkBySchema($siteId, $aSchemaIds, $acls, $identity)) {
+		//if (true === $this->_checkBySchema($siteId, $aSchemaIds, $acls, $identity)) {
+		if (true === $this->check($siteId, $aSchemaIds, $acls, $identity)) {	
 			return true;
 		}
 
@@ -568,6 +569,33 @@ class acl_model extends TMS_MODEL {
 				}
 				curl_close($ch);
 				$rst = json_decode($response);
+				if ($rst->err_code == 0 && $rst->data === 'passed') {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public function check($siteId, &$aSchemaIds, $acls, $identity)
+	{
+		$acls=json_encode($acls);
+		$acls=json_decode($acls,1);
+		foreach ($aSchemaIds as $schemaId) {
+			$q = array(
+				'url',
+				'xxt_site_member_schema',
+				"id=$schemaId and valid='Y'",
+			);
+			if ($url = $this->query_val_ss($q)) {
+				//false === strpos($url, 'http') && $url = 'http://' . $_SERVER['HTTP_HOST'] . $url;
+				$url .= "/checkAcl2";
+				$arr['site']=$siteId;
+				$arr['schema']=$schemaId;
+				$arr['uid']=$identity;
+				$arr['acls']=$acls;
+				//die($url);
+				$rst=\TMS_APP::R($url,$arr);							
 				if ($rst->err_code == 0 && $rst->data === 'passed') {
 					return true;
 				}

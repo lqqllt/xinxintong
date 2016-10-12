@@ -111,6 +111,79 @@ class TMS_APP {
 			}
 		}
 	}
+
+	public static function R($url,$arr=array()) {
+		global $__controller, $__action;
+		!defined('TMS_APP_HOME') && define('TMS_APP_HOME', '');
+		$path = $url;
+		$a=strpos($path, '/rest/');
+		if (0 === strpos($path, '/site/')) {
+			/*快速进入站点*/
+			$short = substr($path, 6);
+			$full = '/rest/site/fe?site=' . $short;
+			header("Location: $full");
+			exit;
+		} else if (0 === strpos($path, '/rest/')) {
+			$path = substr($path, 5);			
+		    return self::A($path,$arr);
+		} else if (0 === strpos($path, '/page/')) {
+			$path = substr($path, 5);
+			self::_request_view($path);
+		} else {
+			if (defined('TMS_APP_HOME') && !empty(TMS_APP_HOME)) {
+				/**
+				 * 跳转到指定首页
+				 */
+				header("Location: " . TMS_APP_HOME);
+			} else {
+				/**
+				 * 跳转到管理端首页
+				 */
+				if (self::_authenticate()) {
+					$path = '/pl/fe';
+					self::_request_api($path);
+				}
+			}
+		}
+	}
+
+	public static function  A($path,$arr)
+	{
+		global $__controller, $__action;
+		self::apiuri_to_controller($path);
+		
+		if (!$obj_controller = self::create_controller($__controller)) {
+			return false;
+		}
+
+		$action_method = $__action . '_action';
+		$trans = $arr;
+		$rm = new ReflectionMethod($obj_controller, $action_method);
+		$ps = $rm->getParameters();
+		/**
+		 * 通过controller处理当前请求
+		 */
+		if (empty($trans) || count($ps) == 0) {
+			$response = $obj_controller->$action_method();
+		} else {
+			foreach ($ps as $p) {
+				$pn = $p->getName();
+				if (isset($trans[$pn])) {
+					$args[] = $trans[$pn];
+				} else {
+					if ($p->isOptional()) {
+						$args[] = $p->getDefaultValue();
+					} else {
+						$args[] = null;
+					}
+
+				}
+			}		
+			$response = call_user_func_array(array($obj_controller, $action_method), $args);
+		}
+
+		return $response;
+	}
 	/**
 	 * 除了API请求
 	 *

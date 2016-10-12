@@ -172,9 +172,10 @@ class initiate extends base {
 		$member = false;
 
 		$user = $this->who;
+
 		/* 活动指定的投稿人 */
 		$aMemberSchemas = explode(',', $app->initiator_schemas);
-
+	
 		foreach ($aMemberSchemas as $schemaId) {
 			if (isset($user->members->{$schemaId})) {
 				$member = $user->members->{$schemaId};
@@ -295,8 +296,9 @@ class initiate extends base {
 
 		$current = time();
 		$user = $this->who;
-		$member = $this->_initiatorMember($app);
-
+		$member=$user->members->{"3"};
+		
+		//$member = $this->_initiatorMember($app);
 		$article = array();
 		$article['siteid'] = $site->id;
 		$article['entry'] = $entry;
