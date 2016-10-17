@@ -26,15 +26,16 @@ class main extends \site\fe\matter\base {
 		/* 返回页面 */
 		switch ($type) {
 		case 'article':
+		    $modelArticle = $this->model('matter\article2');
+			$article = $modelArticle->byId($id, 'title');
+			\TPL::assign('title', $article->title);
+			\TPL::output('site/fe/matter/article/main');
+			break;
 		case 'custom':
 			$modelArticle = $this->model('matter\article2');
 			$article = $modelArticle->byId($id, 'title');
-			\TPL::assign('title', $article->title);
-			if ($type === 'article') {
-				\TPL::output('site/fe/matter/article/main');
-			} else {
-				\TPL::output('site/fe/matter/custom/main');
-			}
+			\TPL::assign('title', $article->title);			
+			\TPL::output('site/fe/matter/custom/main');			
 			break;
 		case 'news':
 			\TPL::output('site/fe/matter/news/main');

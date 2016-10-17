@@ -235,7 +235,7 @@ class article2_model extends article_base {
 	 * 按条件查找单图文
 	 */
 	public function find($site, $user, $page = 1, $size = 10, $options) {
-		$s = "a.id,a.title,a.modify_at,a.author,a.summary,a.pic,a.url";
+		$s = "a.id,a.title,a.modify_at,a.author,a.summary,a.pic,a.url,a.create_at";
 		$w = "a.siteid='$site' and a.state=1 and finished='Y'";
 		if (empty($options->tag)) {
 			$q = array(
@@ -253,10 +253,10 @@ class article2_model extends article_base {
 				$w,
 			);
 		}
-		$q2['o'] = 'a.modify_at desc';
+		$q2['o'] = 'a.create_at desc';
 		$q2['r'] = array('o' => ($page - 1) * $size, 'l' => $size);
 
-		if ($articles = $this->query_objs_ss($q)) {
+		if ($articles = $this->query_objs_ss($q,$q2)) {
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
 
