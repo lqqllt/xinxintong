@@ -43,13 +43,13 @@ class main extends \pl\fe\matter\base {
 		/* 所属项目 */
 		if ($app->mission_id) {
 			$app->mission = $this->model('matter\mission')->byId($app->mission_id, ['cascaded' => 'phase']);
-		}
+		}		
 		/* 关联登记活动 */
-		if ($app->enroll_app_id) {
+		if (isset($app->enroll_app_id)) {
 			$app->enrollApp = $modelEnl->byId($app->enroll_app_id);
 		}
 		/* 关联分组活动 */
-		if ($app->group_app_id) {
+		if (isset($app->group_app_id)) {
 			$app->groupApp = $this->model('matter\group')->byId($app->group_app_id);
 		}
 
