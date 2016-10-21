@@ -303,6 +303,7 @@ class initiate extends base {
 		$article['siteid'] = $site->id;
 		$article['entry'] = $entry;
 		$article['creater'] = $member->id;
+		$article['author'] = $member->name;
 		$article['creater_name'] = $member->name;
 		$article['creater_src'] = 'M';
 		$article['create_at'] = $current;
