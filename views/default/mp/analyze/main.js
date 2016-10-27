@@ -62,6 +62,7 @@ xxtApp.controller('mpCtrl', ['$scope', 'http2', function($scope, http2) {
         url = '/rest/mp/analyze/mpActions';
         url += '?startAt=' + $scope.startAt;
         url += '&endAt=' + $scope.endAt;
+        url +='&site=e2aef8a402cbd59d61bc3a345c977149';
         url += '&' + $scope.page.param();
         http2.get(url, function(rsp) {
             $scope.logs = rsp.data.logs;
@@ -92,6 +93,7 @@ xxtApp.controller('userCtrl', ['$scope', 'http2', function($scope, http2) {
         url += '?orderby=' + $scope.orderby;
         url += '&startAt=' + $scope.startAt;
         url += '&endAt=' + $scope.endAt;
+        url +='&site=e2aef8a402cbd59d61bc3a345c977149';
         url += '&' + $scope.page.param();
         http2.get(url, function(rsp) {
             $scope.users = rsp.data.users;
