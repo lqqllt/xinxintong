@@ -259,24 +259,27 @@ class TMS_MODEL {
 		return TMS_APP::M($model_path);
 	}
 	/**
-	 *
+	 *urlencode 编码字符串是为了json_encode能用
+	 *htmlspecialchars 将引号转换为实体是为了取出的json字符串能json_decode解码和取得的数据在记录日志的时候插入数据库能用
+	 *urlencode虽然能编码'' "" 但是转码后是%+十六进制数字组成 从数据库取出替换很可能跟其他字符串（文本内容）重复 引起混乱
+	 *htmlspecialchars 转码的'' "" 字符不易跟正文内容重复，不易造成混乱 二者需要结合使用。
 	 */
 	public static function urlencodeObj($obj) {
 		
 		if (is_object($obj)) {
 			$newObj = new \stdClass;
 			foreach ($obj as $k => $v) {
-				$k = htmlspecialchars($k);		
+				$k = htmlspecialchars($k,ENT_QUOTES);		
 				$newObj->{urlencode($k)} = self::urlencodeObj($v);
 			}
 		} else if (is_array($obj)) {
 			$newObj = array();
 			foreach ($obj as $k => $v) {
-				$k = htmlspecialchars($k);	
+				$k = htmlspecialchars($k,ENT_QUOTES);	
 				$newObj[urlencode($k)] = self::urlencodeObj($v);
 			}
 		} else {
-			$obj = htmlspecialchars($obj);
+			$obj = htmlspecialchars($obj,ENT_QUOTES);
 			
 			$newObj = urlencode($obj);
 		}
@@ -284,7 +287,7 @@ class TMS_MODEL {
 		return $newObj;
 	}
 	/**
-	 *
+	 * 经过编码的数据能转json字符串再urldecode解码回来保留数据格式存数据库
 	 */
 	public static function toJson($obj) {
 		$obj = self::urlencodeObj($obj);
@@ -304,7 +307,8 @@ class TMS_MODEL {
 		if(json_last_error()==0 && is_object($data)){
 			foreach ($data as $k => $v) {
 				$b=preg_replace("/\^/", "\n", $v);
-				$data->{$k}=htmlspecialchars_decode($b);
+				$b=htmlspecialchars_decode($b,ENT_QUOTES);
+				$data->{$k}=$b;
 			}
 		}
 		

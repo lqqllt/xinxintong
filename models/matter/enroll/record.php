@@ -230,11 +230,13 @@ class record_model extends \TMS_MODEL {
 		$whereByData = '';
 		foreach ($data as $k => $v) {
 			if (!empty($v) && is_string($v)) {
+				$v=$this->escape($v);
 				$whereByData .= ' and (';
 				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
 				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
 				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+				$whereByData .= ' or data like "%'.htmlspecialchars($v,ENT_QUOTES).'%"';
 				$whereByData .= ')';
 			}
 		}
@@ -377,23 +379,23 @@ class record_model extends \TMS_MODEL {
 			}
 			$w .= $whereByTag;
 		}
-
 		// 指定了登记数据过滤条件
 		if (isset($criteria->data)) {
 			$whereByData = '';
 			foreach ($criteria->data as $k => $v) {
 				if (!empty($v)) {
+					$v=$this->escape($v);				
 					$whereByData .= ' and (';
 					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ' or data like "%'.htmlspecialchars($v,ENT_QUOTES).'%"';
 					$whereByData .= ')';
 				}
 			}
 			$w .= $whereByData;
 		}
-
 		// 查询参数
 		$q = [
 			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.verified,e.comment,e.data',
