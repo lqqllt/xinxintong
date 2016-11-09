@@ -302,11 +302,16 @@ class TMS_MODEL {
 	{
 		if(is_string($data)){
 			$data=preg_replace("/[\r\n]/", "^", $data);
+			$data=preg_replace("/\\\/", "`", $data);
+			$data=preg_replace("/\t/", "龘", $data);
 		}
+
 		$data = json_decode($data);
 		if(json_last_error()==0 && is_object($data)){
 			foreach ($data as $k => $v) {
 				$b=preg_replace("/\^/", "\n", $v);
+				$b=preg_replace("/\`/",'\\',$b);
+				$b=preg_replace("/龘/","\t",$b);
 				$b=htmlspecialchars_decode($b,ENT_QUOTES);
 				$data->{$k}=$b;
 			}
