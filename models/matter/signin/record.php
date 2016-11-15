@@ -299,12 +299,20 @@ class record_model extends \TMS_MODEL {
 		$whereByData = '';
 		foreach ($data as $k => $v) {
 			if (!empty($v) && is_string($v)) {
-				$whereByData .= ' and (';
-				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
-				$whereByData .= ')';
+					if(preg_match("/\\\\/", $v)){
+						$v=preg_replace("/\\\\/", "\\\\\\", $v);
+					}
+
+					$v=$this->escape($v);					
+					$s=htmlspecialchars($v,ENT_QUOTES);
+								
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'{"' . $k . '":"%' . $s . '%"}\'';
+					$whereByData .= ')';
 			}
 		}
 

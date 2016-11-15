@@ -201,11 +201,19 @@ class player_model extends \TMS_MODEL {
 				$whereByData .= ')';
 			} else {
 				if (!empty($v)) {
+					if(preg_match("/\\\\/", $v)){
+						$v=preg_replace("/\\\\/", "\\\\\\", $v);
+					}
+
+					$v=$this->escape($v);					
+					$s=htmlspecialchars($v,ENT_QUOTES);
+								
 					$whereByData .= ' and (';
 					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'{"' . $k . '":"%' . $s . '%"}\'';
 					$whereByData .= ')';
 				}
 			}
