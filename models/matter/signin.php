@@ -213,20 +213,11 @@ class signin_model extends app_base {
 			$whereByData = '';
 			foreach ($criteria->data as $k => $v) {
 				if (!empty($v)) {
-					
-					if(preg_match("/\\\\/", $v)){
-						$v=preg_replace("/\\\\/", "\\\\\\", $v);
-					}
-
-					$v=$this->escape($v);					
-					$s=htmlspecialchars($v,ENT_QUOTES);
-								
 					$whereByData .= ' and (';
 					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
-					$whereByData .= ' or data like \'{"' . $k . '":"%' . $s . '%"}\'';
 					$whereByData .= ')';
 				}
 			}

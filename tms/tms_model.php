@@ -319,5 +319,26 @@ class TMS_MODEL {
 		
 		return $data;
 	}
+	/**
+	 * 将html实体标签换回
+	 */
+	public static function htmlDecode($arr)
+	{
+		if(is_array($arr)){
+			$b=array();
+			foreach ($arr as $k1 => $v1) {
+				$b[$k1]=self::htmlDecode($v1);
+			}
+		}else if(is_object($arr)){
+			$b=new \stdClass;
+			foreach ($arr as $k2 => $v2) {
+				$b->{$k2}=self::htmlDecode($v2);
+			}
+		}else{
+			$b=htmlspecialchars_decode($arr,ENT_QUOTES);
+		}
+
+		return $b;
+	}
 
 }
