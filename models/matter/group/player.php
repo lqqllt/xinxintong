@@ -201,11 +201,19 @@ class player_model extends \TMS_MODEL {
 				$whereByData .= ')';
 			} else {
 				if (!empty($v)) {
+					if(preg_match("/\\\\/", $v)){
+						$v=preg_replace("/\\\\/", "\\\\\\", $v);
+					}
+
+					$v=$this->escape($v);					
+					$s=htmlspecialchars($v,ENT_QUOTES);
+								
 					$whereByData .= ' and (';
 					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'{"' . $k . '":"%' . $s . '%"}\'';
 					$whereByData .= ')';
 				}
 			}
@@ -227,12 +235,7 @@ class player_model extends \TMS_MODEL {
 			if (empty($record->data)) {
 				$record->data = new \stdClass;
 			} else {
-				$data = json_decode($record->data);
-				if ($data === null) {
-					$record->data = 'json error(' . json_last_error() . '):' . $r->data;
-				} else {
-					$record->data = $data;
-				}
+				$record->data=\TMS_MODEL::strConvert($record->data);
 			}
 		}
 

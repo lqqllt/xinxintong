@@ -299,12 +299,20 @@ class record_model extends \TMS_MODEL {
 		$whereByData = '';
 		foreach ($data as $k => $v) {
 			if (!empty($v) && is_string($v)) {
-				$whereByData .= ' and (';
-				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
-				$whereByData .= ')';
+					if(preg_match("/\\\\/", $v)){
+						$v=preg_replace("/\\\\/", "\\\\\\", $v);
+					}
+
+					$v=$this->escape($v);					
+					$s=htmlspecialchars($v,ENT_QUOTES);
+								
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'{"' . $k . '":"%' . $s . '%"}\'';
+					$whereByData .= ')';
 			}
 		}
 
@@ -324,12 +332,7 @@ class record_model extends \TMS_MODEL {
 			if (empty($record->data)) {
 				$record->data = new \stdClass;
 			} else {
-				$data = json_decode($record->data);
-				if ($data === null) {
-					$record->data = 'json error(' . json_last_error() . '):' . $r->data;
-				} else {
-					$record->data = $data;
-				}
+				$record->data=\TMS_MODEL::strConvert($record->data);
 			}
 		}
 
@@ -498,11 +501,19 @@ class record_model extends \TMS_MODEL {
 			$whereByData = '';
 			foreach ($criteria->data as $k => $v) {
 				if (!empty($v)) {
+					if(preg_match("/\\\\/", $v)){
+						$v=preg_replace("/\\\\/", "\\\\\\", $v);
+					}
+
+					$v=$this->escape($v);					
+					$s=htmlspecialchars($v,ENT_QUOTES);
+								
 					$whereByData .= ' and (';
 					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'{"' . $k . '":"%' . $s . '%"}\'';
 					$whereByData .= ')';
 				}
 			}
@@ -536,13 +547,7 @@ class record_model extends \TMS_MODEL {
 				}
 				$r->lateCount = $lateCount;
 				// 登记信息
-				$data = str_replace("\n", ' ', $r->data);
-				$data = json_decode($data);
-				if ($data === null) {
-					$r->data = 'json error(' . json_last_error() . '):' . $r->data;
-				} else {
-					$r->data = $data;
-				}
+				$r->data=\TMS_MODEL::strConvert($r->data);
 			}
 			$result->records = $records;
 			/* total */
