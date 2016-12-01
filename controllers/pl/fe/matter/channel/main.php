@@ -133,6 +133,76 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 *
+	 * 复制一个频道（包括它的素材）
+	 *
+	 * @param string $site
+	 * @param string $app
+	 * @param int $mission
+	 *
+	 */
+	public function copy_action($site, $app, $mission = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$current = time();
+		$modelApp = $this->model('matter\channel');
+		$copied = $modelApp->byId($app);
+		$children=$modelApp->getMatters($app);
+		/**
+		 * 获得的基本信息
+		 */
+		$newapp = [];
+		$newapp['siteid'] = $site;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
+		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
+		$newapp['title'] = $copied->title . '（副本）';
+		$newapp['pic'] = $copied->pic;
+		$newapp['summary'] = $copied->summary;
+		$newapp['fixed_title'] = $copied->fixed_title;
+		$newapp['matter_type'] = $copied->matter_type;
+		$newapp['fixed_title'] = $copied->fixed_title;
+		$newapp['volume'] = $copied->volume;
+		$newapp['top_type'] = $copied->top_type;
+		$newapp['top_id'] = $copied->top_id;
+		$newapp['bottom_type'] = $copied->bottom_type;
+		$newapp['bottom_id'] = $copied->bottom_id;
+		$newapp['style_page_id'] = $copied->style_page_id;
+		$newapp['style_page_name'] = $copied->style_page_name;
+		if (!empty($mission)) {
+			$newapp['mission_id'] = $mission;
+		}
+
+		$newaid =$this->model()->insert('xxt_channel', $newapp);
+		//复制频道下素材
+		foreach ($children as $k => $v) {
+				$d['channel_id']=$newaid;
+				$d['creater']=$user->id;
+				$d['creater_name']=$user->name;
+				$d['creater_src']=$user->src;
+				$d['create_at']	=$current;
+				$d['matter_id']=$v->id;
+				$d['matter_type']=$v->type;
+
+				$this->model()->insert("xxt_channel_matter",$d);
+			}
+
+		$app = $modelApp->byId($newaid, ['cascaded' => 'Y']);
+
+		/* 记录操作日志 */
+		$app->type = 'channel';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
+
+		return new \ResponseData($app);
+	}
+	/**
+	 *
 	 * $id channel's id.
 	 * $pos top|bottom
 	 *
