@@ -204,8 +204,16 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 删除频道
 	 */
-	public function delete_action($id) {
-		$rst = $this->model()->update('xxt_channel', array('state' => 0), "mpid='$this->mpid' and id=$id");
+	public function delete_action($site,$id) {
+		$user = $this->accountUser();
+		$rst = $this->model()->update('xxt_channel', array('state' => 0), "siteid='$site' and id=$id");
+
+		/* 记录操作日志 */
+		if ($rst) {
+			$channel = $this->model('matter\\' . 'channel')->byId($id, 'id,title');
+			$channel->type = 'channel';
+			$this->model('log')->matterOp($site, $user, $channel, 'D');
+		}
 
 		return new \ResponseData($rst);
 	}
