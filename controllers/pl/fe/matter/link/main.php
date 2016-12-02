@@ -160,6 +160,58 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($link);
 	}
 	/**
+	 * 复制链接
+	 */
+	public function copy_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$model = $this->model('matter\link');
+		$app=$model->byIdWithParams($id);
+		$modelSite = $this->model('site');
+		$site = $modelSite->byId($site, array('fields' => 'id,heading_pic'));
+		$current = time();
+		$link = array();
+		$link['siteid'] = $site->id;
+		$link['creater'] = $user->id;
+		$link['creater_name'] = $user->name;
+		$link['create_at'] = $current;
+		$link['modifier'] = $user->id;
+		$link['modifier_name'] = $user->name;
+		$link['modify_at'] = $current;
+		$link['title'] = $app->title.'（副本）';
+		$link['pic'] = $site->heading_pic; //使用站点缺省头图
+		$link['summary']=$app->summary;
+		$link['urlsrc']=$app->urlsrc;
+		$link['url']=$app->url;
+		$link['method']=$app->method;
+		$link['url']=$app->url;
+		$link['open_directly']=$app->open_directly;
+		$link['return_data']=$app->return_data;
+		$link['access_control']=$app->access_control;
+		$link['authapis']=$app->authapis;
+		$link['fans_only']=$app->fans_only;
+		$id = $modelSite->insert('xxt_link', $link, true);
+		//复制链接参数
+		foreach ($app->params as $k => $v) {
+			$d['link_id']=$id;
+			$v=(array)$v;
+			$d['pname']=$v['pname'];
+			$d['pvalue']=$v['pvalue'];
+			$d['authapi_id']=$v['authapi_id'];
+			$this->model()->insert('xxt_link_param',$d);
+		}
+
+		$link = $this->model('matter\link')->byId($id);
+
+		/* 记录操作日志 */
+		$matter = $link;
+		$matter->type = 'link';
+		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
+
+		return new \ResponseData($link);
+	}
+	/**
 	 * 删除链接
 	 */
 	public function remove_action($site, $id) {
