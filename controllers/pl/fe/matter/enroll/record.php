@@ -665,7 +665,7 @@ class record extends \pl\fe\matter\base {
 			if (in_array($schema->type, ['html'])) {
 				continue;
 			}
-			if (isset($schema->number) && $schema->number === 'Y') {
+			if (isset($schema->format) && $schema->format === 'number') {
 				$isTotal[($i + $columnNum4)] = $schema->id;
 			}
 
